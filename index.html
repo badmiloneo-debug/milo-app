@@ -8,7 +8,6 @@
     <!-- KODE LOGO/IKON APLIKASI -->
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
-    <!-- ----------------------- -->
 
     <style>
         :root {
@@ -27,20 +26,29 @@
             height: 100vh;
         }
         header {
-            padding: 15px 20px;
+            padding: 12px 20px;
             background-color: var(--card-bg);
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #334155;
         }
-        h1 { margin: 0; font-size: 1.2rem; color: var(--accent-color); }
+        h1 { margin: 0; font-size: 1.1rem; color: var(--accent-color); }
+        
+        .settings-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0;
+        }
+
         #config-section {
-            padding: 10px 20px;
+            padding: 10px 15px;
             background: #1e293b;
             border-bottom: 1px solid #334155;
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
         input[type="password"] {
             flex: 1;
@@ -49,20 +57,23 @@
             border: 1px solid #475569;
             background: #0f172a;
             color: white;
+            font-size: 0.9rem;
         }
+        
         #chat-box {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
         .msg {
-            max-width: 80%;
-            padding: 12px 16px;
+            max-width: 85%;
+            padding: 10px 14px;
             border-radius: 12px;
             line-height: 1.4;
+            font-size: 0.95rem;
         }
         .user-msg {
             align-self: flex-end;
@@ -73,25 +84,28 @@
             background-color: var(--card-bg);
             border: 1px solid #334155;
         }
+        
         #input-container {
-            padding: 15px;
+            padding: 12px 15px;
             background-color: var(--card-bg);
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            border-top: 1px solid #334155;
         }
         input[type="text"] {
             flex: 1;
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
             border: 1px solid #475569;
             background: #0f172a;
             color: white;
+            font-size: 0.95rem;
         }
         button {
             background-color: var(--accent-color);
             color: #0f172a;
             border: none;
-            padding: 12px 18px;
+            padding: 10px 14px;
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
@@ -105,11 +119,12 @@
 <body>
 
     <header>
-        <h1>🤖 MILO (Mind & Idea Launch Operator)</h1>
+        <h1>🤖 MILO</h1>
+        <button class="settings-btn" onclick="toggleSettings()" title="Pengaturan API Key">⚙️</button>
     </header>
 
-    <div id="config-section">
-        <input type="password" id="api-key" placeholder="Masukkan Gemini API Key di sini...">
+    <div id="config-section" style="display: none;">
+        <input type="password" id="api-key" placeholder="Masukkan Gemini API Key...">
         <button onclick="saveKey()">Simpan</button>
     </div>
 
@@ -118,18 +133,39 @@
     </div>
 
     <div id="input-container">
-        <button class="mic-btn" onclick="startVoice()">🎙️ Spoken</button>
+        <button class="mic-btn" onclick="startVoice()">🎙️</button>
         <input type="text" id="user-input" placeholder="Ketik atau gunakan suara...">
         <button onclick="sendMessage()">Kirim</button>
     </div>
 
     <script>
-        document.getElementById('api-key').value = localStorage.getItem('GEMINI_KEY') || '';
+        const savedKey = localStorage.getItem('GEMINI_KEY');
+        const configSection = document.getElementById('config-section');
+        
+        if (savedKey) {
+            document.getElementById('api-key').value = savedKey;
+            configSection.style.display = 'none'; // Sembunyikan otomatis jika sudah ada key
+        } else {
+            configSection.style.display = 'flex'; // Tampilkan jika belum ada key
+        }
+
+        function toggleSettings() {
+            if (configSection.style.display === 'none') {
+                configSection.style.display = 'flex';
+            } else {
+                configSection.style.display = 'none';
+            }
+        }
 
         function saveKey() {
-            const key = document.getElementById('api-key').value;
-            localStorage.setItem('GEMINI_KEY', key);
-            alert('API Key tersimpan!');
+            const key = document.getElementById('api-key').value.trim();
+            if (key) {
+                localStorage.setItem('GEMINI_KEY', key);
+                alert('API Key tersimpan!');
+                configSection.style.display = 'none'; // Langsung sembunyikan setelah disimpan
+            } else {
+                alert('Masukkan API Key yang valid.');
+            }
         }
 
         function startVoice() {
@@ -164,7 +200,8 @@
 
             if (!userText) return;
             if (!apiKey) {
-                alert("Masukkan Gemini API Key dulu ya!");
+                alert("Masukkan Gemini API Key lewat ikon roda gigi (⚙️) di atas ya!");
+                configSection.style.display = 'flex';
                 return;
             }
 
